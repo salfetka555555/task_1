@@ -13,6 +13,10 @@
             text-align: left;
             border-bottom: 1px solid #ddd;
         }
+        .highlight {
+            background-color: orange;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -20,36 +24,65 @@
 <div id="randomNumbersTable"></div>
 
 <script>
-// Функция для генерации массива случайных чисел
 const generateRandomArray = () => Array.from({length: 30}, () => Math.floor(Math.random() * 100));
 
-// Генерация таблицы
+const shouldHighlight = (num) => num > 50;
+
+const createTableCell = (num) => {
+    const cell = document.createElement('td');
+    cell.textContent = num;
+    if (shouldHighlight(num)) {
+        cell.className = 'highlight';
+    }
+    return cell;
+};
+
 document.addEventListener('DOMContentLoaded', function() {
     const randomArray = generateRandomArray();
+    const tableDiv = document.getElementById('randomNumbersTable');
+    const table = document.createElement('table');
+    let currentRow = document.createElement('tr');
+    let cellCount = 0;
     
-    // Создание HTML-элементов таблицы
-    let tableHTML = '<table><tr>';
     for(let i = 0; i < randomArray.length; i++) {
-        if(i % 5 === 0 && i !== 0) {   // По пять элементов в строке
-            tableHTML += '</tr><tr>';
+        if(cellCount === 5) {
+            table.appendChild(currentRow);
+            currentRow = document.createElement('tr');
+            cellCount = 0;
         }
-        tableHTML += `<td>${randomArray[i]}</td>`;
+        
+        currentRow.appendChild(createTableCell(randomArray[i]));
+        cellCount++;
     }
-    tableHTML += '</tr></table>';
-
-    document.getElementById('randomNumbersTable').innerHTML = tableHTML;
+    
+    if (cellCount > 0) {
+        table.appendChild(currentRow);
+    }
+    
+    tableDiv.appendChild(table);
 });
 
-// Добавляем новое случайное число по кнопке
-document.body.insertAdjacentHTML("beforeend", "<button onclick='addNumberToTable()'>Добавить случайное число</button>");
-
-// Функция добавления нового элемента в таблицу
 function addNumberToTable() {
+    const table = document.querySelector('#randomNumbersTable table');
+    const rows = table.querySelectorAll('tr');
+    const lastRow = rows[rows.length - 1];
+    const cellsInLastRow = lastRow.querySelectorAll('td').length;
+    
     const newNum = Math.floor(Math.random() * 100);
-    const rows = document.querySelectorAll('#randomNumbersTable tr');
-    rows[rows.length - 1].insertCell(-1).textContent = newNum;
+    
+    if (cellsInLastRow >= 5) {
+        const newRow = document.createElement('tr');
+        newRow.appendChild(createTableCell(newNum));
+        table.appendChild(newRow);
+    } else {
+        lastRow.appendChild(createTableCell(newNum));
+    }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.body.insertAdjacentHTML("beforeend", "<button onclick='addNumberToTable()'>Добавить случайное число</button>");
+});
+
 </script>
 </body>
-
 </html>
